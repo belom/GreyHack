@@ -1,0 +1,60 @@
+if params.len == 0 or params[0] == "--help" then
+	exit("IP, Port, Memory, string")
+end if
+add = params[2]
+code = params[3]
+meta = include_lib("/lib/metaxploit.so")
+lib = meta.net_use(params[0], params[1].to_int).dump_lib
+ov = lib.overflow(add, code, "1234")
+print(typeof(ov))
+if not ov then
+	exit("No object returned")
+end if
+if typeof(ov) == "file" then
+	if ov.is_folder then
+		print("Got folder, attempting to move to /")
+		while ov.path != "/"
+			ov = ov.parent
+		end while
+		print("Arrived at /, attempting to move to /etc to get passwd file...")
+		bank = null
+		folders = ov.get_folders
+		for folder in folders
+			if folder.path == "/etc" then
+				files = folder.get_files
+				for file in files
+					if file.name == "passwd" then
+						if not file.has_permission("r") then exit("Unable to read /etc/passwd. Permission denied.")
+						print("Success, printing contents of /etc/passwd:\n" + file.content)
+					end if
+				end for
+			end if
+			if folder.path == "/home" then
+				bank = folder
+			end if
+		end for
+		if not bank then exit()
+		print("\nSearching for Bank passwords...")
+		folders = bank.get_folders
+		for folder in folders
+			folders_conf = folder.get_folders
+			for folder_conf in folders_conf
+				if folder_conf.name == "Config" then
+					bnk_tmp = folder_conf.get_files
+					for bnk in bnk_tmp
+						if bnk.name == "Bank.txt" then
+							print(bnk.content)
+						end if
+					end for
+				end if
+			end for
+		end for
+	end if
+	
+else if typeof(ov) == "number" then
+	exit ("New password: 1234")
+else if typeof(ov) == "shell" then
+	ov.start_terminal
+else if typeof(ov) == "computer" then
+	print(ov.File("/etc/passwd").content)
+end if
