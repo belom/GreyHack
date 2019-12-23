@@ -1,0 +1,12 @@
+if params.len == 0 or params[0] == "--help" then
+	exit("IP Port")
+end if
+meta = include_lib("/lib/metaxploit.so")
+lib = meta.net_use(params[0], params[1].to_int).dump_lib
+print(lib.lib_name + " " + lib.version)
+addresses = meta.scan(lib)
+for address in addresses
+	findings = meta.scan_address(lib, address)
+	print(address + ":")
+	print(findings)
+end for
