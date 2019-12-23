@@ -1,0 +1,17 @@
+if params.len == 0 or params[0] == "--help" then
+	exit("File to decipher")
+end if
+file = get_shell.host_computer.File(params[0])
+lib = include_lib("/lib/crypto.so")
+if not lib then
+	exit()
+end if
+lines = file.content.split("\n")
+result = ""
+for line in lines
+	if line.len != 0 then
+		userpass = line.split(":")
+		result = result + userpass[0] + ":" + lib.decipher(userpass[0], userpass[1]) + "\n"
+	end if
+end for
+file.set_content(result)
