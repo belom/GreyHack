@@ -1,0 +1,22 @@
+comp = get_shell.host_computer
+homes = comp.File("/home").get_folders
+outval = ""
+for home in homes
+	users = home.get_folders
+	for user in users
+		if user.name == "Config" then
+			configs = user.get_files
+			for conf in configs
+				if conf.name == "Bank.txt" then
+					outval = outval + conf.content + "\n"
+					print(conf.content)
+				end if
+			end for
+		end if	
+	end for
+end for
+if outval.len > 0 then
+	comp.touch(comp.current_path, "Bank.txt")
+	o = comp.File(comp.current_path +  "/Bank.txt")
+	o.set_content(outval)
+end if
