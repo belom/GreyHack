@@ -56,5 +56,21 @@ else if typeof(ov) == "number" then
 else if typeof(ov) == "shell" then
 	ov.start_terminal
 else if typeof(ov) == "computer" then
-	print(ov.File("/etc/passwd").content)
+	pass = ov.File("/etc/passwd").content
+	if pass then 
+		print(ov.File("/etc/passwd").content)
+	end if
+	folders = ov.File("/home").get_folders
+	result = ""
+	for folder in folders
+		result = result + folder.name + ":\n"
+		ftmp = ov.File(folder.path + "/Config").get_files
+		for tmp in ftmp
+			result = result + tmp.content + "\n"
+		end for
+	end for
+	print(result)	
+	sh = get_shell.host_computer
+	sh.touch(sh.current_path, "pass.txt")
+	sh.File("pass.txt").set_content(result)
 end if
